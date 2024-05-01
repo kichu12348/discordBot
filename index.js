@@ -4,6 +4,7 @@ require("dotenv").config();
 
 
 //hellowww
+const botToken = process.env.BOT_TOKEN;
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -14,6 +15,6 @@ const client = new Client({
 
 client.on("messageCreate", handleMesaage);
 
-client.login(process.env.BOT_TOKEN);
+client.login(botToken);
 
 console.log("Bot is running...");

@@ -1,7 +1,7 @@
 const { OpenAiApi } = require('openai');
 //dont work
 // Configure the API key directly
-const apiKey = 'sk-proj-gFekY0r4qzFCnN8AwjKgT3BlbkFJunszLApwAXr489fJ32kw';
+
 
 async function aiResponse(text) {
     try {
@@ -16,7 +16,7 @@ async function aiResponse(text) {
             ],
             stream: false,
             options: {
-                temperature: 0.8,
+                temperature: 0.7,
             },
         });
 

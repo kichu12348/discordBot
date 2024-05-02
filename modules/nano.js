@@ -1,6 +1,7 @@
 // Handles the nano commands
-function handleNano(message){
-    const randomMessage =[
+let prev = "";
+function handleNano(message) {
+  const randomMessage = [
     "OMG You're sooo tinnnyyyyyy... 😂😂",
     "Whaa who's that? I can't see anyone...",
     "Did someone say something? Oh, it's just your tiny text popping up!",
@@ -1011,16 +1012,21 @@ function handleNano(message){
     "You're like the poet of brevity!",
     "Your messages are like little treasures in the chat!",
     "Short, but definitely not lacking in creativity!",
-    ]
+  ];
 
+  const randomShort =
+    randomMessage[Math.floor(Math.random() * randomMessage.length)];
+  if (prev === randomShort) {
+    handleNano(message);
+  } else {
     message.reply({
-            content:
-            randomMessage[Math.floor(Math.random() * randomMessage.length)],
-    })
-    message.react('😃');
-
+      content: randomShort,
+    });
+    prev = randomShort;
+    message.react("😃");
+  }
 }
 
-module.exports={
-    handleNano
-}
+module.exports = {
+  handleNano,
+};

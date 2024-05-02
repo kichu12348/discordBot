@@ -1,7 +1,6 @@
 const { Client, GatewayIntentBits } = require("discord.js");
-const {handleMesaage} = require("./modules/message");
+const { handleMesaage } = require("./modules/message");
 require("dotenv").config();
-
 
 //hellowww
 const client = new Client({

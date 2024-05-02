@@ -1,5 +1,25 @@
 const axios = require("axios");
 
+function sendLongResponse(response) {
+  const maxLength = 2000;
+  let startIndex = 0;
+  let endIndex = maxLength;
+  const responses = [];
+
+  while (endIndex < response.length) {
+    while (response[endIndex] !== " " && endIndex > startIndex) {
+      endIndex--;
+    }
+    responses.push(response.substring(startIndex, endIndex));
+    startIndex = endIndex + 1;
+    endIndex = startIndex + maxLength;
+  }
+
+  responses.push(response.substring(startIndex));
+
+  return responses;
+}
+
 async function generateText(text) {
   try {
     const response = await axios.post("http://localhost:11434/api/chat", {
@@ -7,15 +27,15 @@ async function generateText(text) {
       messages: [
         {
           role: "user",
-          content: text + ". also keep it under 1000 characters please.",
+          content: text,
         },
       ],
       stream: false,
-      options:{
+      options: {
         temperature: 0.7,
       },
     });
-    const message = response.data.message.content < 2000 ? response.data.message.content : response.data.message.content.slice(0, 2000);
+    const message = sendLongResponse(response.data.message.content);
 
     return message;
   } catch (error) {
@@ -26,5 +46,4 @@ async function generateText(text) {
 
 module.exports = {
   generateText,
-}
-
+};

@@ -1,7 +1,7 @@
 const { generateText } = require("./ai");
 const { handleNano } = require("./nano");
 
-const handleMesaage = async (message) => {
+const handleMessage = async (message) => {
   try {
     if (message.author.bot) return;
     else if (
@@ -43,5 +43,5 @@ const handleMesaage = async (message) => {
 };
 
 module.exports = {
-  handleMesaage,
+  handleMessage,
 };

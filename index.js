@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits } = require("discord.js");
-const { handleMesaage } = require("./modules/message");
+const { handleMessage } = require("./modules/message");
+const cluster = require("cluster");
 require("dotenv").config();
 
 //hellowww
@@ -11,7 +12,7 @@ const client = new Client({
   ],
 });
 
-client.on("messageCreate", handleMesaage);
+client.on("messageCreate", handleMessage);
 
 client.login(process.env.BOT_TOKEN);
 

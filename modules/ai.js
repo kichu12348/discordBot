@@ -23,7 +23,7 @@ function sendLongResponse(response) {
 async function generateText(text) {
   try {
     const response = await axios.post("http://localhost:11434/api/chat", {
-      model: "llama2",
+      model: "tinydolphin",
       messages: [
         {
           role: "user",
@@ -40,7 +40,7 @@ async function generateText(text) {
     return message;
   } catch (error) {
     console.log(error);
-    return "I'm sorry, Im unable to do that.";
+    return "I'm sorry, I was unable to do that.";
   }
 }
 

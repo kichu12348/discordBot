@@ -4,13 +4,15 @@ const { handleNano } = require("./nano");
 const handleMessage = async (message) => {
   try {
     if (message.author.bot) return;
-    else if (
-      message.author.username === "malavikagk_35334" ||
-      (message.author.username === "gokul.b" &&
-        !message.content.toLowerCase().includes("/ai"))
+    if (
+      message.author.username === ("malavikagk_35334" ||
+      message.author.username === "gokul.b") &&
+        !message.content.toLowerCase().includes("/ai") &&
+        Math.floor(Math.random() * 100) === 5
     ) {
       //malavikagk_35334
       handleNano(message);
+      return;
     }
     if (message.content.toLowerCase().includes("/ai")) {
       if (message.content.split("/ai")[1] === "" || null) return;

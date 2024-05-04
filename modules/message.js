@@ -1,5 +1,6 @@
 const { generateText } = require("./ai");
 const { handleNano } = require("./nano");
+const { handleStore } = require("./store");
 
 const handleMessage = async (message) => {
   try {
@@ -8,6 +9,8 @@ const handleMessage = async (message) => {
       message.author.username === "malavikagk_35334" ||
       message.author.username === "gokul.b" &&
         !message.content.toLowerCase().includes("/ai") 
+        && !message.content.toLowerCase().includes("/store")
+        && !message.content.toLowerCase().includes("/get")
         && Math.floor(Math.random() * 50) === 5
     ) {
       //malavikagk_35334
@@ -35,6 +38,10 @@ const handleMessage = async (message) => {
           });
         }
       }
+    }
+
+    if(message.content.toLowerCase().includes('/store')|| message.content.toLowerCase().includes('/get')){
+      await handleStore(message)
     }
   } catch (error) {
     console.log(error);

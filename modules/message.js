@@ -5,10 +5,10 @@ const handleMessage = async (message) => {
   try {
     if (message.author.bot) return;
     if (
-      message.author.username === ("malavikagk_35334" ||
-      message.author.username === "gokul.b") &&
-        !message.content.toLowerCase().includes("/ai") &&
-        Math.floor(Math.random() * 100) === 5
+      message.author.username === "malavikagk_35334" ||
+      message.author.username === "gokul.b" &&
+        !message.content.toLowerCase().includes("/ai") 
+        && Math.floor(Math.random() * 50) === 5
     ) {
       //malavikagk_35334
       handleNano(message);

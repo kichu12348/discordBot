@@ -32,7 +32,7 @@ async function generateText(text) {
       ],
       stream: false,
       options: {
-        temperature: 0.7,
+        temperature: 0.8,
       },
     });
     const message = sendLongResponse(response.data.message.content);

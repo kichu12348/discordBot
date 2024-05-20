@@ -20,7 +20,21 @@ function sendLongResponse(response) {
   return responses;
 }
 
+let numberOfRequests = 0;
+  const maxRequests = 3;
+  let responses = [];
+
 async function generateText(text) {
+  // console.log(responses);
+
+  if (numberOfRequests === maxRequests) {
+    numberOfRequests = 0;
+    responses = [];
+  }
+  
+    responses.push(text);
+    numberOfRequests++;
+  
 
   const prompt = `you are a chatbot named cookieBot that helps people with their problems. You are very good at it and have helped many people. You are very kind and understanding. You are very patient and always listen to what people have to say. You are very good at giving advice and always know what to say. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. You are very good at making people feel better and always know how to cheer them up. ${text}`
   try {
@@ -29,7 +43,7 @@ async function generateText(text) {
       messages: [
         {
           role: "user",
-          content: prompt,
+          content:  prompt,
         },
       ],
       stream: false,

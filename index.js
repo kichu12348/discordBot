@@ -1,7 +1,6 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const { handleMessage } = require("./modules/message");
 const { connectToDB } = require("./modules/store");
-const{generateText} = require("./modules/ai");
 require("dotenv").config();
 
 connectToDB(process.env.MONGO_URI);
@@ -20,9 +19,3 @@ client.login(process.env.BOT_TOKEN);
 
 console.log("Bot is running...");
 
-// async function test(){
-//   const message = await generateText("write me an essay thats 4000 characters long.");
-//   console.log(message);
-// }
-
-// test();

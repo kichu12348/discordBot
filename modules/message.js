@@ -41,6 +41,7 @@ const handleMessage = async (message) => {
     }
 
     if(message.content.toLowerCase().includes('/store')|| message.content.toLowerCase().includes('/get')){
+      return
       await handleStore(message)
     }
   } catch (error) {

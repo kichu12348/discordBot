@@ -1,10 +1,8 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const { handleMessage } = require("./modules/message");
 const { connectToDB } = require("./modules/store");
-const{generateText} = require("./modules/ai");
-require("dotenv").config();
 
-connectToDB(process.env.MONGO_URI);
+//connectToDB(process.env.MONGO_URI);
 //hellowww
 const client = new Client({
   intents: [

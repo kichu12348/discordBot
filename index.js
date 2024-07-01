@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const { handleMessage } = require("./modules/message");
-const { connectToDB } = require("./modules/store");
+// const { connectToDB } = require("./modules/store");
 const express = require("express");
 const app = express();
 

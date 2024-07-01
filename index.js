@@ -1,6 +1,8 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const { handleMessage } = require("./modules/message");
 const { connectToDB } = require("./modules/store");
+const express = require("express");
+const app = express();
 
 //connectToDB(process.env.MONGO_URI);
 //hellowww
@@ -15,6 +17,12 @@ const client = new Client({
 client.on("messageCreate", handleMessage);
 
 client.login(process.env.BOT_TOKEN);
+
+app.get("/", (req, res) => {
+  res.json({
+    message:"i am aliveee💀"
+  })
+});
 
 console.log("Bot is running...😎");
 

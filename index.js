@@ -16,11 +16,5 @@ client.on("messageCreate", handleMessage);
 
 client.login(process.env.BOT_TOKEN);
 
-console.log("Bot is running...");
+console.log("Bot is running...😎");
 
-// async function test(){
-//   const message = await generateText("how are you ?");
-//   console.log(message);
-// }
-
-// test();

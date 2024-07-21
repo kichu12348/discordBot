@@ -1,6 +1,5 @@
 const { generateText } = require("./ai");
 const { handleNano } = require("./nano");
-const { handleStore } = require("./store");
 
 const handleMessage = async (message) => {
   try {
@@ -26,7 +25,7 @@ const handleMessage = async (message) => {
         return;
       }
       message.channel.sendTyping();
-      const aiResponse = await generateText(message.content.split("/ai")[1]);
+      const aiResponse = await generateText(message.content.split("/ai")[1],`@${message.author.username}`);
       for (let i = 0; i < aiResponse.length; i++) {
         if (i === 0) {
           message.reply({
@@ -40,10 +39,6 @@ const handleMessage = async (message) => {
       }
     }
 
-    if(message.content.toLowerCase().includes('/store')|| message.content.toLowerCase().includes('/get')){
-      return
-      await handleStore(message)
-    }
   } catch (error) {
     console.log(error);
     message.reply({

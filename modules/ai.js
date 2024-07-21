@@ -22,18 +22,18 @@ function sendLongResponse(response) {
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-async function Main(message) {
-  const chatCompletion = await getGroqChatCompletion(message);
+async function Main(message,user) {
+  const chatCompletion = await getGroqChatCompletion(message,user);
   return chatCompletion.choices[0]?.message?.content || "";
 }
 
-async function getGroqChatCompletion(message) {
+async function getGroqChatCompletion(message,user) {
     if(!message) return
   return groq.chat.completions.create({
     messages: [
         {
         role: "system",
-        content: "you are a discord bot named cookies",
+        content: `you are a discord bot named cookies and you got message from ${user}`,
         },
       {
         role: "user",
@@ -49,9 +49,9 @@ async function getGroqChatCompletion(message) {
 
 
 
-async function generateText(text) {
+async function generateText(text,user="@cookie") {
   try {
-    const response = await Main(text);
+    const response = await Main(text,user);
     const message = sendLongResponse(response);
     return message;
   } catch (error) {

@@ -32,6 +32,10 @@ const checkEnvVariables = () => {
 
   if (!groqApiKey)
     console.log("Error: GROQ_API_KEY is not set in the environment variables.");
+
+  if (botToken && tenApiKey && groqApiKey) {
+    console.log("All required environment variables are set. Bot is ready to start!");
+  }
 };
 
 checkEnvVariables();

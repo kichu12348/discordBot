@@ -1,49 +1,81 @@
-const { generateText } = require("./ai");
-const { handleNano } = require("./nano");
+const { generateText, sendLongResponse } = require("./ai");
+const { EmbedBuilder } = require("discord.js");
 
 const handleMessage = async (message) => {
   try {
+    // Ignore bot messages
     if (message.author.bot) return;
-    if (
-      message.author.username === "malavikagk_35334" ||
-      message.author.username === "gokul.b" &&
-        !message.content.toLowerCase().includes("/ai") 
-        && !message.content.toLowerCase().includes("/store")
-        && !message.content.toLowerCase().includes("/get")
-        && Math.floor(Math.random() * 50) === 5
-    ) {
-      //malavikagk_35334
-      handleNano(message);
+
+    // Skip if message is too long
+    if (message.content.length >= 1000) {
+      if (message.mentions.users.has(message.client.user.id)) {
+        message.reply({
+          content: "bestie that's way too long, I'm not reading all that 💀",
+        });
+      }
       return;
     }
-    if (message.content.toLowerCase().includes("/ai")) {
-      if (message.content.split("/ai")[1] === "" || null) return;
-      if (message.content.split("/ai")[1].length >= 1000) {
-        message.reply({
-          content: "I'm sorry, I can only process upto 1000 characters.",
+
+    // Create message object for AI processing
+    const messageObj = {
+      content: message.content,
+      author: message.author,
+      channelId: message.channel.id,
+      client: message.client,
+      mentions: message.mentions,
+      reference: message.reference,
+    };
+
+    const aiResponse = await generateText(messageObj);
+
+    // Only respond if AI decides to
+    if (aiResponse) {
+      await message.channel.sendTyping();
+
+      const messageChunks = sendLongResponse(aiResponse.text);
+
+      // Handle case where there's only a GIF
+      if (
+        (!aiResponse.text || aiResponse.text.trim() === "") &&
+        aiResponse.gifUrl
+      ) {
+        await message.reply({
+          embeds: [new EmbedBuilder().setImage(aiResponse.gifUrl)],
+          allowedMentions: { repliedUser: false },
         });
         return;
       }
-      message.channel.sendTyping();
-      const aiResponse = await generateText(message.content.split("/ai")[1],`@${message.author.username}`);
-      for (let i = 0; i < aiResponse.length; i++) {
+
+      for (let i = 0; i < messageChunks.length; i++) {
+        const chunk = messageChunks[i];
+        if (!chunk || chunk.trim() === "") continue;
+
+        const messageOptions = {
+          content: chunk,
+          allowedMentions: { repliedUser: false },
+        };
+
+        // Add embed with GIF to the first message chunk
+        if (i === 0 && aiResponse.gifUrl) {
+          messageOptions.embeds = [
+            new EmbedBuilder().setImage(aiResponse.gifUrl),
+          ];
+        }
+
         if (i === 0) {
-          message.reply({
-            content: aiResponse[i],
-          });
+          await message.reply(messageOptions);
         } else {
-          message.channel.send({
-            content: aiResponse[i],
-          });
+          await message.channel.send(messageOptions);
         }
       }
     }
-
   } catch (error) {
     console.log(error);
-    message.reply({
-      content: "I'm sorry, I was unable to process your request.",
-    });
+    if (message.mentions.users.has(message.client.user.id)) {
+      message.reply({
+        content: "something went wrong and it's probably your fault 🙄",
+      });
+    }
   }
 };
 

@@ -12,7 +12,11 @@ const client = new Client({
 
 client.on("messageCreate", handleMessage);
 
+client.on("ready", () => {
+  console.log(`${client.user.tag} is now online and ready to be sarcastic! 😎`);
+});
+
 client.login(process.env.BOT_TOKEN);
 
-console.log("Bot is running...😎");
+console.log("Bot is starting up...😎");
 

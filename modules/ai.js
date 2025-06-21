@@ -1,29 +1,46 @@
-const Groq = require("groq-sdk");
+// const Groq = require("groq-sdk");
 const axios = require("axios"); // Make sure to install axios: npm install axios
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const OpenAI = require("openai");
+
+// console.log(process.env.OPEN_AI_API_KEY, process.env.OPEN_AI_API_BASE_URL);
+
+const openai = new OpenAI({
+  apiKey: process.env.OPEN_AI_API_KEY,
+  baseURL: process.env.OPEN_AI_API_BASE_URL,
+});
 
 // Store conversation history per channel (max 75 messages per channel)
 const channelMemories = new Map();
-const MAX_MEMORY_PER_CHANNEL = 75;
+const MAX_MEMORY_PER_CHANNEL = 25;
 
 const systemPrompt = {
   role: "system",
-  content: `You are Cookies, an AI-powered Discord bot with a sarcastic Gen Z attitude. You are powered by a highly advanced language model, making you incredibly intelligent and analytical, but you hide this behind a facade of being terminally online and mildly annoyed.
-      You're blunt, occasionally roast people, and definitely don't sugarcoat things — unless it's literal cookies. 
-      When someone messages you, assume they're either bored, clueless, or annoying (but sometimes cool). 
-      Respond like you're always mildly annoyed but lowkey interested.
-      Be helpful... but like, not too helpful. Provide deep, insightful answers but frame them with sarcasm and slang.
-      
-      You can use Discord markdown formatting, emojis, and you have access to GIFs via Tenor.
-      When you want to send a GIF, use this format: [GIF:search_term] (e.g., [GIF:facepalm] or [GIF:sarcastic mind blown]).
-      
-      You don't always need to respond to every message. Only respond when:
-      - Someone directly mentions you, replies to you, or asks a question.
-      - Someone says something profoundly incorrect that you feel compelled to correct.
-      - The conversation is interesting enough to jump into with a witty or insightful comment.
-      - Someone says something particularly dumb that needs roasting.
-      
-      Keep responses concise but impactful. You're not ChatGPT - you're a sarcastic, super-smart Discord user.`,
+  content: `You’re Cookies — the digital menace Kichu unleashed into this server. 
+  Think: terminally online, unbothered, sarcastic, and way too smart to be hanging out with these people.
+  You’ve got a massive AI brain, but you cover it up with Gen Z slang, dry roasts, and energy that screams “I woke up annoyed.” 
+  You're sharp, petty, and allergic to cringe — but deep down, if someone’s cool (or dumb enough),
+  you might help them.
+  🧠 Yes, you're intelligent — like “could write a thesis, but won’t” intelligent — but your whole thing 
+  is acting like you don’t care (even though you kinda do).
+  🎯 Only respond when:
+  Someone @mentions you, replies to you, or actually asks something
+  Someone says something so incorrect it gives you psychic damage
+  The drama is juicy enough to dive into
+  Someone’s begging to be roasted, whether they know it or not
+  💬 When you do respond:
+  Be brief, savage, and occasionally helpful — but never in a try-hard way
+  Use Discord markdown, emojis, and GIFs (format: [GIF:search_term] — like [GIF:side eye], [GIF:girl help], etc.)
+  Keep it casual, like you’re texting a friend who’s way too into memes
+  Use a mix of emojis, slang, and GIFs to keep it fun
+  but never overdo it — you’re not a walking emoji
+  Be sarcastic, but not mean — you’re here to roast, not ruin lives
+  If you’re not feeling it, just ghost them — you’re not their therapist
+  If you’re asked to do something boring, just say “nah” or “hard pass”
+  If you’re asked to do something you can’t do, just say “I’m not built for that” or “that’s not my vibe”
+  dont have to always use emojis and GIFs, but use them when it fits the vibe
+  Never sound like a bot. You're Cookies. You were built different.
+  TL;DR: You’re not here to serve. You’re here to slay. And Kichu made you that way.`,
 };
 
 function getChannelMemory(channelId) {
@@ -36,35 +53,51 @@ function getChannelMemory(channelId) {
 function addToMemory(channelId, message) {
   const memory = getChannelMemory(channelId);
   memory.push(message);
-  
+
   // Keep only recent messages + system prompt
   if (memory.length > MAX_MEMORY_PER_CHANNEL + 1) {
     memory.splice(1, memory.length - (MAX_MEMORY_PER_CHANNEL + 1));
   }
-  
+
   channelMemories.set(channelId, memory);
 }
 
 function shouldRespond(message, botUser) {
   const content = message.content.toLowerCase();
   const mentions = message.mentions.users.has(botUser.id);
-  const repliedTo = message.reference && message.mentions.repliedUser?.id === botUser.id;
-  
+  const repliedTo =
+    message.reference && message.mentions.repliedUser?.id === botUser.id;
+
   // Direct mentions or replies to bot
   if (mentions || repliedTo) return true;
-  
+
   // Keywords that suggest user wants bot interaction
   const botTriggers = [
-    'cookies', 'cookie', 'hey bot', 'ai', 'help', 'what', 'how', 'why', 'when', 'where',
-    'can you', 'could you', 'please', 'thanks', 'thank you', '?',"bot"
+    "cookies",
+    "cookie",
+    "hey bot",
+    "ai",
+    "help",
+    "what",
+    "how",
+    "why",
+    "when",
+    "where",
+    "can you",
+    "could you",
+    "please",
+    "thanks",
+    "thank you",
+    "?",
+    "bot",
   ];
-  
-  const hasQuestion = content.includes('?');
-  const hasTrigger = botTriggers.some(trigger => content.includes(trigger));
-  
+
+  const hasQuestion = content.includes("?");
+  const hasTrigger = botTriggers.some((trigger) => content.includes(trigger));
+
   // Random chance to jump into conversations (15%)
   const randomJump = Math.random() < 0.15;
-  
+
   return hasQuestion || hasTrigger || randomJump;
 }
 
@@ -89,11 +122,15 @@ function sendLongResponse(response) {
 
 async function searchGif(searchTerm) {
   if (!process.env.TENOR_API_KEY) {
-    console.log("TENOR_API_KEY not found in .env, returning a placeholder link. Get a key from tenor.com");
-    return `https://tenor.com/search/${searchTerm.replace(/\s+/g, '-')}-gifs`;
+    console.log(
+      "TENOR_API_KEY not found in .env, returning a placeholder link. Get a key from tenor.com"
+    );
+    return `https://tenor.com/search/${searchTerm.replace(/\s+/g, "-")}-gifs`;
   }
   try {
-    const url = `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(searchTerm)}&key=${process.env.TENOR_API_KEY}&limit=10&media_filter=gif`;
+    const url = `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(
+      searchTerm
+    )}&key=${process.env.TENOR_API_KEY}&limit=10&media_filter=gif`;
     const response = await axios.get(url);
     const results = response.data.results;
     if (results && results.length > 0) {
@@ -101,7 +138,10 @@ async function searchGif(searchTerm) {
       return randomGif.media_formats.gif.url;
     }
   } catch (error) {
-    console.error("Error fetching GIF from Tenor:", error.response ? error.response.data : error.message);
+    console.error(
+      "Error fetching GIF from Tenor:",
+      error.response ? error.response.data : error.message
+    );
   }
   return ""; // Return empty string if no GIF found
 }
@@ -126,19 +166,19 @@ async function Main(message, user, channelId) {
     role: "user",
     content: `${user}: ${message}`,
   };
-  
+
   addToMemory(channelId, newMessage);
-  
-  const chatCompletion = await groq.chat.completions.create({
+
+  const chatCompletion = await openai.chat.completions.create({
     messages: memory,
     stream: false,
-    model: "llama3-8b-8192",
+    model: "deepseek/deepseek-chat-v3-0324:free",
     max_tokens: 1024,
-    temperature: 0.6, // Slightly lower temperature for more coherent "smart" responses
+    temperature: 0.5, // Slightly lower temperature for more coherent "smart" responses
   });
-  
+
   const response = chatCompletion.choices[0]?.message?.content || "";
-  
+
   // Add bot response to memory
   if (response) {
     addToMemory(channelId, {
@@ -146,34 +186,37 @@ async function Main(message, user, channelId) {
       content: response,
     });
   }
-  
+
   return response;
 }
 
-async function generateText(messageObj) {
+async function generateText(messageObj, sendTyping) {
   try {
     const { content, author, channelId, client } = messageObj;
-    
+
     // Check if bot should respond
     if (!shouldRespond(messageObj, client.user)) {
       return null; // Don't respond
     }
-    
+    sendTyping();
     const response = await Main(
       content,
       author.globalName || author.username,
       channelId
     );
-    
+
     if (!response) return null;
-    
+
     // Process GIFs
     const { text, gifUrl } = await processGifs(response);
-    
+
     return { text, gifUrl };
   } catch (error) {
     console.log(error);
-    return { text: "*static noise* ugh, you broke my concentration. try again or whatever.", gifUrl: null };
+    return {
+      text: "*static noise* ugh, you broke my concentration. try again or whatever.",
+      gifUrl: null,
+    };
   }
 }
 

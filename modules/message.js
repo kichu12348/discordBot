@@ -26,11 +26,13 @@ const handleMessage = async (message) => {
       reference: message.reference,
     };
 
-    const aiResponse = await generateText(messageObj);
+    const aiResponse = await generateText(messageObj, () =>
+      message.channel.sendTyping()
+    );
 
     // Only respond if AI decides to
     if (aiResponse) {
-      await message.channel.sendTyping();
+      // await message.channel.sendTyping();
 
       const messageChunks = sendLongResponse(aiResponse.text);
 

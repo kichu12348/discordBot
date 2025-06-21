@@ -20,8 +20,8 @@ client.login(process.env.BOT_TOKEN);
 const checkEnvVariables = () => {
   const botToken = process.env.BOT_TOKEN;
   const tenApiKey = process.env.TENOR_API_KEY;
-  const openAIApiKey = process.env.OPENAI_API_KEY;
-  const baseURL = process.env.OPENAI_API_BASE_URL;
+  const openAIApiKey = process.env.OPEN_AI_API_KEY;
+  const baseURL = process.env.OPEN_AI_API_BASE_URL;
 
   if (!botToken)
     console.log("Error: BOT_TOKEN is not set in the environment variables.");

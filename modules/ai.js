@@ -212,7 +212,12 @@ async function generateText(messageObj, sendTyping) {
 
     return { text, gifUrl };
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
+    /// drop channel memories if there's an error
+    if (error.message.includes("rate limit")) {
+      console.log("Rate limit hit, clearing channel memories.");
+      channelMemories.clear();
+    }
     return {
       text: "*static noise* ugh, you broke my concentration. try again or whatever.",
       gifUrl: null,

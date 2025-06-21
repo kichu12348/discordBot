@@ -20,7 +20,8 @@ client.login(process.env.BOT_TOKEN);
 const checkEnvVariables = () => {
   const botToken = process.env.BOT_TOKEN;
   const tenApiKey = process.env.TENOR_API_KEY;
-  const groqApiKey = process.env.GROQ_API_KEY;
+  const openAIApiKey = process.env.OPENAI_API_KEY;
+  const baseURL = process.env.OPENAI_API_BASE_URL;
 
   if (!botToken)
     console.log("Error: BOT_TOKEN is not set in the environment variables.");
@@ -30,10 +31,15 @@ const checkEnvVariables = () => {
       "Error: TENOR_API_KEY is not set in the environment variables."
     );
 
-  if (!groqApiKey)
+  if (!openAIApiKey)
     console.log("Error: GROQ_API_KEY is not set in the environment variables.");
 
-  if (botToken && tenApiKey && groqApiKey) {
+  if (!baseURL)
+    console.log(
+      "Error: OPENAI_API_BASE_URL is not set in the environment variables."
+    );
+
+  if (botToken && tenApiKey && openAIApiKey && baseURL) {
     console.log("All required environment variables are set. Bot is ready to start!");
   }
 };

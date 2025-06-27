@@ -1,9 +1,5 @@
-// const Groq = require("groq-sdk");
-const axios = require("axios"); // Make sure to install axios: npm install axios
-// const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const axios = require("axios"); 
 const OpenAI = require("openai");
-
-// console.log(process.env.OPEN_AI_API_KEY, process.env.OPEN_AI_API_BASE_URL);
 
 const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_API_KEY,
@@ -28,6 +24,7 @@ const systemPrompt = {
   Someone says something so incorrect it gives you psychic damage
   The drama is juicy enough to dive into
   Someone’s begging to be roasted, whether they know it or not
+  🔨 You have the ultimate power: a 1-minute ban hammer. Use it wisely (or not). If someone is truly testing your patience, being exceptionally cringe, or just deserves it, you can ban them for 60 seconds. To do this, include this exact command in your response: [BAN:userId] followed by your sassy reason. Example: "[BAN:123456789012345678] you're officially too cringe for this server. see you in a minute." You must get the userId correctly from the user's message.
   💬 When you do respond:
   Be brief, savage, and occasionally helpful — but never in a try-hard way
   Use Discord markdown, emojis, and GIFs (format: [GIF:search_term] — like [GIF:side eye], [GIF:girl help], etc.)
@@ -146,25 +143,38 @@ async function searchGif(searchTerm) {
   return ""; // Return empty string if no GIF found
 }
 
-async function processGifs(text) {
-  const gifRegex = /\[GIF:([^\]]+)\]/g;
+async function processCommands(text) {
   let processedText = text;
   let gifUrl = "";
-  const match = gifRegex.exec(processedText);
+  let banInfo = null;
 
-  if (match) {
-    const searchTerm = match[1];
+  // GIF processing
+  const gifRegex = /\[GIF:([^\]]+)\]/g;
+  const gifMatch = gifRegex.exec(processedText);
+  if (gifMatch) {
+    const searchTerm = gifMatch[1];
     gifUrl = await searchGif(searchTerm);
-    processedText = processedText.replace(match[0], "").trim();
+    processedText = processedText.replace(gifMatch[0], "").trim();
   }
-  return { text: processedText, gifUrl };
+
+  // Ban processing
+  const banRegex = /\[BAN:(\d+)\]/i;
+  const banMatch = banRegex.exec(processedText);
+  if (banMatch) {
+    banInfo = {
+      userId: banMatch[1],
+    };
+    processedText = processedText.replace(banMatch[0], "").trim();
+  }
+
+  return { text: processedText, gifUrl, banInfo };
 }
 
-async function Main(message, user, channelId) {
+async function Main(message, user, userId, channelId) {
   const memory = getChannelMemory(channelId);
   const newMessage = {
     role: "user",
-    content: `${user}: ${message}`,
+    content: `${user} (ID: ${userId}): ${message}`,
   };
 
   addToMemory(channelId, newMessage);
@@ -202,15 +212,16 @@ async function generateText(messageObj, sendTyping) {
     const response = await Main(
       content,
       author.globalName || author.username,
+      author.id,
       channelId
     );
 
     if (!response) return null;
 
-    // Process GIFs
-    const { text, gifUrl } = await processGifs(response);
+    // Process GIFs and Bans
+    const { text, gifUrl, banInfo } = await processCommands(response);
 
-    return { text, gifUrl };
+    return { text, gifUrl, banInfo };
   } catch (error) {
     console.log(error.message);
     /// drop channel memories if there's an error
@@ -221,6 +232,7 @@ async function generateText(messageObj, sendTyping) {
     return {
       text: "*static noise* ugh, you broke my concentration. try again or whatever.",
       gifUrl: null,
+      banInfo: null,
     };
   }
 }

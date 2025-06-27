@@ -32,7 +32,7 @@ const checkEnvVariables = () => {
     );
 
   if (!openAIApiKey)
-    console.log("Error: GROQ_API_KEY is not set in the environment variables.");
+    console.log("Error: OPEN_AI_API_KEY is not set in the environment variables.");
 
   if (!baseURL)
     console.log(

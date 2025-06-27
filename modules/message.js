@@ -1,5 +1,5 @@
 const { generateText, sendLongResponse } = require("./ai");
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder, PermissionsBitField } = require("discord.js");
 
 const handleMessage = async (message) => {
   try {
@@ -32,7 +32,48 @@ const handleMessage = async (message) => {
 
     // Only respond if AI decides to
     if (aiResponse) {
-      // await message.channel.sendTyping();
+      if (aiResponse.banInfo) {
+        if (
+          !message.guild.members.me.permissions.has(
+            PermissionsBitField.Flags.BanMembers
+          )
+        ) {
+          await message.channel.send(
+            "LMAO you really thought? I don't even have perms to ban people. ask an admin to fix it if you want me to have my ban hammer."
+          );
+        } else {
+          try {
+            const memberToBan = await message.guild.members.fetch(
+              aiResponse.banInfo.userId
+            );
+            if (memberToBan && memberToBan.bannable) {
+              await memberToBan.ban({
+                reason: `Banned by Cookies for 1 minute. Reason: ${aiResponse.text}`,
+              });
+              setTimeout(async () => {
+                try {
+                  await message.guild.members.unban(
+                    aiResponse.banInfo.userId,
+                    "1-minute ban expired."
+                  );
+                } catch (unbanError) {
+                  console.error(
+                    `Failed to unban ${aiResponse.banInfo.userId}:`,
+                    unbanError
+                  );
+                }
+              }, 60 * 1000); // 1 minute
+            } else {
+              aiResponse.text =
+                "lol, tried to ban them but I can't. guess they're too powerful... or I'm too weak. whatever.";
+            }
+          } catch (banError) {
+            console.error("Failed to ban user:", banError);
+            aiResponse.text =
+              "ugh, my ban hammer is broken. you're safe... for now.";
+          }
+        }
+      }
 
       const messageChunks = sendLongResponse(aiResponse.text);
 
